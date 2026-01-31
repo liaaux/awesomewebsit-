@@ -9,6 +9,9 @@ export async function createIdea(prevState: any, formData: FormData) {
   const session = await getSession();
   if (!session) return { error: "Unauthorized" };
 
+  const user = await prisma.user.findUnique({ where: { id: session.user.id } });
+  if (!user || user.isBanned) return { error: "Your account is banned from posting" };
+
   const title = formData.get("title") as string;
   const description = formData.get("description") as string;
   const suggestedDate = formData.get("suggestedDate") as string;
@@ -41,6 +44,9 @@ export async function createIdea(prevState: any, formData: FormData) {
 export async function toggleUpvote(ideaId: string) {
   const session = await getSession();
   if (!session) return { error: "Unauthorized" };
+
+  const user = await prisma.user.findUnique({ where: { id: session.user.id } });
+  if (!user || user.isBanned) return { error: "Your account is banned from voting" };
 
   const userId = session.user.id;
 

@@ -29,15 +29,17 @@ export async function signup(prevState: any, formData: FormData) {
   const hashedPassword = await bcrypt.hash(password, 10);
 
   try {
+    const role = email === "lmamo1@schools.vic.edu.au" ? "ADMIN" : "USER";
     const user = await prisma.user.create({
       data: {
         email,
         password: hashedPassword,
         name,
+        role,
       },
     });
 
-    await login({ id: user.id, email: user.email, name: user.name });
+    await login({ id: user.id, email: user.email, name: user.name, role: user.role });
   } catch (e) {
     return { error: "Something went wrong" };
   }
@@ -66,7 +68,7 @@ export async function loginAction(prevState: any, formData: FormData) {
     return { error: "Invalid credentials" };
   }
 
-  await login({ id: user.id, email: user.email, name: user.name });
+  await login({ id: user.id, email: user.email, name: user.name, role: user.role });
   redirect("/");
 }
 

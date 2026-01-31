@@ -113,6 +113,7 @@ export default async function IdeaDetailPage({ params }: { params: { id: string 
           ideaId={idea.id}
           comments={idea.comments}
           currentUserId={session?.user?.id || ""}
+          currentUserRole={session?.user?.role}
         />
       </div>
     </main>

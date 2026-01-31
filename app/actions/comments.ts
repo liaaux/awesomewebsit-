@@ -8,6 +8,9 @@ export async function createComment(prevState: any, formData: FormData) {
   const session = await getSession();
   if (!session) return { error: "Unauthorized" };
 
+  const user = await prisma.user.findUnique({ where: { id: session.user.id } });
+  if (!user || user.isBanned) return { error: "Your account is banned from commenting" };
+
   const content = formData.get("content") as string;
   const ideaId = formData.get("ideaId") as string;
 
@@ -34,6 +37,9 @@ export async function createComment(prevState: any, formData: FormData) {
 export async function updateComment(prevState: any, formData: FormData) {
   const session = await getSession();
   if (!session) return { error: "Unauthorized" };
+
+  const user = await prisma.user.findUnique({ where: { id: session.user.id } });
+  if (!user || user.isBanned) return { error: "Your account is banned from editing comments" };
 
   const commentId = formData.get("commentId") as string;
   const content = formData.get("content") as string;

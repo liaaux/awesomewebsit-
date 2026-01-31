@@ -3,7 +3,7 @@ import { getSession } from "@/lib/auth";
 import IdeaForm from "@/components/IdeaForm";
 import UpvoteButton from "@/components/UpvoteButton";
 import Link from "next/link";
-import { MessageSquare, MapPin, Calendar, DollarSign, LogOut } from "lucide-react";
+import { MessageSquare, MapPin, Calendar, DollarSign, LogOut, Pin } from "lucide-react";
 import { logoutAction } from "./actions/auth";
 
 export default async function Home() {
@@ -20,7 +20,10 @@ export default async function Home() {
         where: { userId: session?.user?.id },
       },
     },
-    orderBy: { createdAt: "desc" },
+    orderBy: [
+      { isPinned: "desc" },
+      { createdAt: "desc" },
+    ],
   });
 
   return (
@@ -30,6 +33,11 @@ export default async function Home() {
           <h1 className="text-2xl font-black text-indigo-600 tracking-tight">SCHOOL EVENTS</h1>
           <div className="flex items-center gap-4">
             <span className="text-sm text-gray-600 hidden sm:inline">Hi, {session?.user?.name}</span>
+            {session?.user?.role === "ADMIN" && (
+              <Link href="/admin" className="text-sm font-bold text-pink-600 hover:text-pink-700 transition-colors bg-pink-50 px-3 py-1 rounded-full">
+                Admin Panel
+              </Link>
+            )}
             <form action={logoutAction}>
               <button type="submit" className="text-gray-500 hover:text-red-600 transition-colors">
                 <LogOut className="w-5 h-5" />
@@ -53,11 +61,19 @@ export default async function Home() {
               <div key={idea.id} className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:border-indigo-200 transition-colors">
                 <div className="p-6">
                   <div className="flex justify-between items-start mb-4">
-                    <h3 className="text-xl font-bold text-gray-900 leading-tight">
-                      <Link href={`/ideas/${idea.id}`} className="hover:text-indigo-600 transition-colors">
-                        {idea.title}
-                      </Link>
-                    </h3>
+                    <div className="flex flex-col gap-1">
+                      {idea.isPinned && (
+                        <div className="flex items-center gap-1 text-xs font-bold text-orange-600 uppercase tracking-wider mb-1">
+                          <Pin className="w-3 h-3 fill-current" />
+                          Pinned
+                        </div>
+                      )}
+                      <h3 className="text-xl font-bold text-gray-900 leading-tight">
+                        <Link href={`/ideas/${idea.id}`} className="hover:text-indigo-600 transition-colors">
+                          {idea.title}
+                        </Link>
+                      </h3>
+                    </div>
                     <UpvoteButton
                       ideaId={idea.id}
                       initialCount={idea._count.upvotes}

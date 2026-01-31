@@ -12,6 +12,8 @@ model User {
   email    String    @unique
   name     String?
   password String
+  role     String    @default("USER") // "USER" or "ADMIN"
+  isBanned Boolean   @default(false)
   ideas    Idea[]
   comments Comment[]
   upvotes  Upvote[]
@@ -24,6 +26,7 @@ model Idea {
   suggestedDate       String?
   suggestedLocation   String?
   monetaryRequirement String?
+  isPinned            Boolean   @default(false)
   createdAt           DateTime  @default(now())
   updatedAt           DateTime  @updatedAt
   author              User      @relation(fields: [authorId], references: [id])

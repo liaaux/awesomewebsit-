@@ -2,15 +2,17 @@
 
 import { useActionState, useState } from "react";
 import { createComment, updateComment } from "@/app/actions/comments";
-import { User, Edit2 } from "lucide-react";
+import { deleteComment } from "@/app/actions/admin";
+import { User, Edit2, Trash2 } from "lucide-react";
 
 interface CommentSectionProps {
   ideaId: string;
   comments: any[];
   currentUserId: string;
+  currentUserRole?: string;
 }
 
-export default function CommentSection({ ideaId, comments, currentUserId }: CommentSectionProps) {
+export default function CommentSection({ ideaId, comments, currentUserId, currentUserRole }: CommentSectionProps) {
   const [state, action, isPending] = useActionState(createComment, undefined);
   const [editingId, setEditingId] = useState<string | null>(null);
 
@@ -68,15 +70,28 @@ export default function CommentSection({ ideaId, comments, currentUserId }: Comm
                 ) : (
                   <>
                     <p className="text-gray-600 whitespace-pre-wrap">{comment.content}</p>
-                    {comment.authorId === currentUserId && (
-                      <button
-                        onClick={() => setEditingId(comment.id)}
-                        className="mt-3 flex items-center gap-1 text-xs font-semibold text-gray-400 hover:text-indigo-600 transition-colors"
-                      >
-                        <Edit2 className="w-3 h-3" />
-                        Edit Comment
-                      </button>
-                    )}
+                    <div className="flex items-center gap-4 mt-3">
+                      {comment.authorId === currentUserId && (
+                        <button
+                          onClick={() => setEditingId(comment.id)}
+                          className="flex items-center gap-1 text-xs font-semibold text-gray-400 hover:text-indigo-600 transition-colors"
+                        >
+                          <Edit2 className="w-3 h-3" />
+                          Edit
+                        </button>
+                      )}
+                      {currentUserRole === "ADMIN" && (
+                        <form action={async () => { if(confirm("Are you sure?")) await deleteComment(comment.id); }}>
+                          <button
+                            type="submit"
+                            className="flex items-center gap-1 text-xs font-semibold text-red-400 hover:text-red-600 transition-colors"
+                          >
+                            <Trash2 className="w-3 h-3" />
+                            Admin Delete
+                          </button>
+                        </form>
+                      )}
+                    </div>
                   </>
                 )}
               </div>
